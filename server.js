@@ -4,19 +4,28 @@ import cors from "cors";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 
-dotenv.config(); // loads .env
+dotenv.config();
 console.log("Loaded key prefix:", (process.env.GEMINI_API_KEY || "").slice(0, 10));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// allow your front‑end (GitHub Pages or local) to call this API
-app.use(cors());
-app.use(express.json({ limit: "10mb" })); // parse JSON, allow base64 image
+// CORS: allow GitHub Pages and local dev
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "http://127.0.0.1:5500",
+    "https://sowzz-005.github.io"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+
+app.use(express.json({ limit: "10mb" }));
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, file } = req.body; // { message, file: { mime_type, data } }
+    const { message, file } = req.body;
 
     const body = {
       contents: [
@@ -58,6 +67,11 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
+// simple health check
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
