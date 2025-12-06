@@ -10,16 +10,28 @@ console.log("Loaded key prefix:", (process.env.GEMINI_API_KEY || "").slice(0, 10
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS: allow GitHub Pages and local dev
-app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "http://127.0.0.1:5500",
-    "https://sowzz-005.github.io"
-  ],
+// CORS: allow GitHub Pages and local dev with whitelist + preflight
+const allowedOrigins = [
+  "https://sowzz-005.github.io",
+  "http://localhost:3000",
+  "http://127.0.0.1:5500"
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"]
-}));
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // handle preflight
 
 app.use(express.json({ limit: "10mb" }));
 
