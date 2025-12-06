@@ -24,7 +24,7 @@ async function generateResponse(aiChatBox) {
   };
 
   try {
-    const response = await fetch("http://localhost:3000/api/chat", {
+    const response = await fetch("https://your-backend.onrender.com/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
